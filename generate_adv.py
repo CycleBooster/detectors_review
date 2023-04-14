@@ -6,7 +6,8 @@ from common.util import *
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from art.attacks.evasion import FastGradientMethod, BasicIterativeMethod, CarliniL2Method, CarliniLInfMethod, ProjectedGradientDescent, DeepFool, ThresholdAttack, PixelAttack, SpatialTransformation, SquareAttack, ZooAttack, BoundaryAttack, HopSkipJump
-from art.classifiers import KerasClassifier
+# from art.classifiers import KerasClassifier
+from art.estimators.classification import TensorFlowV2Classifier
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -24,75 +25,16 @@ def main(args):
     print('Dataset: %s' % args.dataset)
     adv_path = '/home/aaldahdo/detectors/adv_data/'
 
-    if args.dataset == 'mnist':
-        from baselineCNN.cnn.cnn_mnist import MNISTCNN as model
-        model_mnist = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_mnist.model
-        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.3
-        pa_th=78
-        # random_restart = 20
-        # x_train = model_mnist.x_train
-        x_test = model_mnist.x_test
-        # y_train = model_mnist.y_train
-        y_test = model_mnist.y_test
-        y_test_labels = model_mnist.y_test_labels
-        translation = 10
-        rotation = 60
-    
-    elif args.dataset == 'mnist_gray':
-        from baselineCNN.cnn.cnn_mnist_gray import MNISTCNN as model
-        model_mnist = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_mnist.model
-        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.3
-        pa_th=78
-        # random_restart = 20
-        # x_train = model_mnist.x_train
-        x_test = model_mnist.x_test
-        # y_train = model_mnist.y_train
-        y_test = model_mnist.y_test
-        y_test_labels = model_mnist.y_test_labels
-        translation = 10
-        rotation = 60
+    if args.dataset == 'cifar':
+        # from baselineCNN.cnn.cnn_cifar10 import CIFAR10CNN as model
+        from custom_model import VirtualModel as model
 
-    elif args.dataset == 'cifar':
-        from baselineCNN.cnn.cnn_cifar10 import CIFAR10CNN as model
         model_cifar = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
         classifier=model_cifar.model
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.125
-        pa_th=100
-        # x_train = model_cifar.x_train
-        x_test = model_cifar.x_test
-        # y_train = model_cifar.y_train
-        y_test = model_cifar.y_test
-        y_test_labels = model_cifar.y_test_labels
-        translation = 8
-        rotation = 30
-    
-    elif args.dataset == 'cifar_gray':
-        from baselineCNN.cnn.cnn_cifar10_gray import CIFAR10CNN as model
-        model_cifar = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_cifar.model
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
+        # kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
+        kclassifier = TensorFlowV2Classifier(model=classifier, nb_classes=10, input_shape=(32,32,3), clip_values=(0,255))
         epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
         epsilons1=[5, 10, 15, 20, 25, 30, 40]
         epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
@@ -112,7 +54,8 @@ def main(args):
         classifier=model_svhn.model
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
+        # kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
+        kclassifier = TensorFlowV2Classifier(model=classifier, nb_classes=10, input_shape=(32,32,3), clip_values=(0,255))
         epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
         epsilons1=[5, 10, 15, 20, 25, 30, 40]
         epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
@@ -126,71 +69,6 @@ def main(args):
         translation = 10
         rotation = 60
 
-    elif args.dataset == 'svhn_gray':
-        from baselineCNN.cnn.cnn_svhn_gray import SVHNCNN as model
-        model_svhn = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_svhn.model
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.125
-        pa_th=100
-        # x_train = model_svhn.x_train
-        x_test = model_svhn.x_test
-        # y_train = model_svhn.y_train
-        y_test = model_svhn.y_test
-        y_test_labels = model_svhn.y_test_labels
-        translation = 10
-        rotation = 60
-
-    elif args.dataset == 'tiny':
-        from baselineCNN.cnn.cnn_tiny import TINYCNN as model
-        model_tiny = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_tiny.model
-        sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.125
-        pa_th=100
-        # x_train = model_tiny.x_train
-        x_test = model_tiny.x_test
-        # y_train = model_tiny.y_train
-        y_test = model_tiny.y_test
-        y_test_labels = model_tiny.y_test_labels
-        translation = 8
-        rotation = 30
-        del model_tiny
-
-    elif args.dataset == 'tiny_gray':
-        from baselineCNN.cnn.cnn_tiny_gray import TINYCNN as model
-        model_tiny = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        classifier=model_tiny.model
-        sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
-        classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
-        epsilons1=[5, 10, 15, 20, 25, 30, 40]
-        epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
-        eps_sa=0.125
-        # x_train = model_tiny.x_train
-        x_test = model_tiny.x_test
-        # y_train = model_tiny.y_train
-        y_test = model_tiny.y_test
-        y_test_labels = model_tiny.y_test_labels
-        translation = 8
-        rotation = 30
-        del model_tiny
-
-    
-    # batch_count_start = args.batch_indx
-    # bsize = args.batch_size
-    # batch_count_end = batch_count_start + 1
 
     #FGSM
     for e in epsilons:
