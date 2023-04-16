@@ -2,9 +2,9 @@
 
 
 #-------------------------- Common
-checkpoints_dir = '/home/aaldahdo/detectors/checkpoints/'
-adv_data_dir = '/home/aaldahdo/detectors/adv_data/'
-adv_data_gray_dir = '/home/aaldahdo/detectors/adv_data/gray/'
+checkpoints_dir = './checkpoints/'
+adv_data_dir = './adv_data/'
+adv_data_gray_dir = './adv_data/gray/'
 DATASETS = ['mnist', 'cifar', 'svhn', 'tiny']
 ATTACK = [['fgsm_0.125', 'fgsm_0.25', 'fgsm_0.3125', \
             'bim_0.125', 'bim_0.25', 'bim_0.3125', \

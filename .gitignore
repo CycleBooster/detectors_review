@@ -1,1 +1,4 @@
 custom_model/model weights/*
+*/__pycache__/*
+__pycache__/*
+adv_data/*

@@ -6,8 +6,7 @@ from common.util import *
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from art.attacks.evasion import FastGradientMethod, BasicIterativeMethod, CarliniL2Method, CarliniLInfMethod, ProjectedGradientDescent, DeepFool, ThresholdAttack, PixelAttack, SpatialTransformation, SquareAttack, ZooAttack, BoundaryAttack, HopSkipJump
-# from art.classifiers import KerasClassifier
-from art.estimators.classification import TensorFlowV2Classifier
+from art.estimators.classifiers import KerasClassifier
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -23,18 +22,16 @@ def main(args):
     assert args.dataset in ['mnist', 'cifar', 'svhn', 'tiny', 'tiny_gray'], \
         "dataset parameter must be either 'mnist', 'cifar', 'svhn', or 'tiny'"
     print('Dataset: %s' % args.dataset)
-    adv_path = '/home/aaldahdo/detectors/adv_data/'
+    adv_path = './adv_data/'
 
     if args.dataset == 'cifar':
-        # from baselineCNN.cnn.cnn_cifar10 import CIFAR10CNN as model
-        from custom_model import VirtualModel as model
+        from baselineCNN.cnn.cnn_cifar10 import CIFAR10CNN as model
 
         model_cifar = model(mode='load', filename='cnn_{}.h5'.format(args.dataset))
         classifier=model_cifar.model
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        # kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        kclassifier = TensorFlowV2Classifier(model=classifier, nb_classes=10, input_shape=(32,32,3), clip_values=(0,255))
+        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
         epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
         epsilons1=[5, 10, 15, 20, 25, 30, 40]
         epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
@@ -54,8 +51,7 @@ def main(args):
         classifier=model_svhn.model
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         classifier.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        # kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
-        kclassifier = TensorFlowV2Classifier(model=classifier, nb_classes=10, input_shape=(32,32,3), clip_values=(0,255))
+        kclassifier = KerasClassifier(model=classifier, clip_values=(0, 1))
         epsilons=[8/256, 16/256, 32/256, 64/256, 80/256, 128/256]
         epsilons1=[5, 10, 15, 20, 25, 30, 40]
         epsilons2=[0.125, 0.25, 0.3125, 0.5, 1, 1.5, 2]
