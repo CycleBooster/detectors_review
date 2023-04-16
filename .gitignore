@@ -1,4 +1,7 @@
 custom_model/model weights/*
 */__pycache__/*
 __pycache__/*
+*.pyc
 adv_data/*
+results/*
+checkpoints/*

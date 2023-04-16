@@ -2,8 +2,8 @@ from __future__ import division, absolute_import, print_function
 import argparse
 from common.util import *
 from setup_paths import *
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+# os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from magnet.defensive_models import DenoisingAutoEncoder as DAE
 from magnet.worker import *
@@ -39,29 +39,31 @@ def main(args):
 
     print('Loading the data and model...')
     # Load the model
-    if args.dataset == 'mnist':
-        from baselineCNN.cnn.cnn_mnist import MNISTCNN as myModel
-        model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        model=model_class.model
-        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
-        clip_min, clip_max = 0,1
-        v_noise=0.1
-        p1=2
-        p2=1
-        type='error'
-        t=10
-        drop_rate={"I": 0.001, "II": 0.001}
-        epochs=100
+    # if args.dataset == 'mnist':
+    #     from baselineCNN.cnn.cnn_mnist import MNISTCNN as myModel
+    #     model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
+    #     model=model_class.model
+    #     sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=0.9, nesterov=True)
+    #     model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
+    #     modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
+    #     clip_min, clip_max = 0,1
+    #     v_noise=0.1
+    #     p1=2
+    #     p2=1
+    #     type='error'
+    #     t=10
+    #     drop_rate={"I": 0.001, "II": 0.001}
+    #     epochs=100
         
-    elif args.dataset == 'cifar':
+    # elif args.dataset == 'cifar':
+    if args.dataset == 'cifar':
         from baselineCNN.cnn.cnn_cifar10 import CIFAR10CNN as myModel
         model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
         model=model_class.model
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_softmax').output)
+        # modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_softmax').output)
+        modelx = Model(inputs=model.inputs, outputs=model.get_layer('classification_head_before_softmax').output)
         clip_min, clip_max = 0,1
         v_noise=0.025
         p1=1
@@ -71,38 +73,38 @@ def main(args):
         drop_rate={"I": 0.005, "II": 0.005}
         epochs=350
 
-    elif args.dataset == 'svhn':
-        from baselineCNN.cnn.cnn_svhn import SVHNCNN as myModel
-        model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        model=model_class.model
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
-        clip_min, clip_max = 0,1
-        v_noise=0.025
-        p1=1
-        p2=1
-        type='prob'
-        t=40
-        drop_rate={"I": 0.005, "II": 0.005}
-        epochs=350
+    # elif args.dataset == 'svhn':
+    #     from baselineCNN.cnn.cnn_svhn import SVHNCNN as myModel
+    #     model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
+    #     model=model_class.model
+    #     sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    #     model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
+    #     modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
+    #     clip_min, clip_max = 0,1
+    #     v_noise=0.025
+    #     p1=1
+    #     p2=1
+    #     type='prob'
+    #     t=40
+    #     drop_rate={"I": 0.005, "II": 0.005}
+    #     epochs=350
 
-    elif args.dataset == 'tiny':
-        from baselineCNN.cnn.cnn_tiny import TINYCNN as myModel
-        model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
-        model=model_class.model
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
-        modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
-        # clip_min, clip_max = -2.117904,2.64
-        clip_min, clip_max = 0,1
-        v_noise=0.025
-        p1=1
-        p2=1
-        type='error'
-        t=10
-        drop_rate={"I": 0.005, "II": 0.005}
-        epochs=350
+    # elif args.dataset == 'tiny':
+    #     from baselineCNN.cnn.cnn_tiny import TINYCNN as myModel
+    #     model_class = myModel(mode='load', filename='cnn_{}.h5'.format(args.dataset))
+    #     model=model_class.model
+    #     sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    #     model.compile(loss=categorical_crossentropy, optimizer=sgd, metrics=['accuracy'])
+    #     modelx = Model(inputs=model.get_input_at(0), outputs=model.get_layer('classification_head_before_activation').output)
+    #     # clip_min, clip_max = -2.117904,2.64
+    #     clip_min, clip_max = 0,1
+    #     v_noise=0.025
+    #     p1=1
+    #     p2=1
+    #     type='error'
+    #     t=10
+    #     drop_rate={"I": 0.005, "II": 0.005}
+    #     epochs=350
 
     # Load the dataset
     X_train, Y_train, X_test, Y_test = model_class.x_train, model_class.y_train, model_class.x_test, model_class.y_test
@@ -120,11 +122,15 @@ def main(args):
     detector_II = DAE(im_dim, [3], v_noise=v_noise, activation="sigmoid", model_dir=magnet_results_dir, reg_strength=1e-9)
     if os.path.isfile('{}{}'.format(magnet_results_dir, detector_i_filename)):
         detector_I.load(detector_i_filename)
+        print("load model I.")
     else:
+        print("start train model I.")
         detector_I.train(X_train, X_test, detector_i_filename, clip_min, clip_max, num_epochs=epochs, batch_size=256, if_save=True)
     if os.path.isfile('{}{}'.format(magnet_results_dir, detector_ii_filename)):
         detector_II.load(detector_ii_filename)
+        print("load model II.")
     else:
+        print("start train model II.")
         detector_II.train(X_train, X_test, detector_ii_filename, clip_min, clip_max, num_epochs=epochs, batch_size=256, if_save=True)
 
     # Refine the normal, noisy and adversarial sets to only include samples for
