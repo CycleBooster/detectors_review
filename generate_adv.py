@@ -8,7 +8,8 @@ from common.util import *
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
 # os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from art.attacks.evasion import FastGradientMethod, BasicIterativeMethod, CarliniL2Method, CarliniLInfMethod, ProjectedGradientDescent, DeepFool, ThresholdAttack, PixelAttack, SpatialTransformation, SquareAttack, ZooAttack, BoundaryAttack, HopSkipJump
-from art.estimators.classification import KerasClassifier
+# from art.estimators.classification import KerasClassifier
+from art.classifiers import KerasClassifier
 
 import matplotlib
 matplotlib.use('TkAgg')
